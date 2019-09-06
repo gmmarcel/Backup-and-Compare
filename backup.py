@@ -44,29 +44,34 @@ def checkFile(sourcePath,destinationPath,allFiles):
         fileName    = fileDest.replace(".","")
         #print("File: "+fileName+" == ",fileExist)
 
-        if not fileExist:
-            try:
-                shutil.copy2(fileSource,fileDest)
-            except IOError as e:
-                print("Unable to copy file. %s" % e)
-            except:
-                print("Unexpected error:", sys.exc_info())
-                exit(1)
+        #without git files
+        if not fileDest.find(".git"):
+
+            if not fileExist:
+                try:
+                    shutil.copy2(fileSource,fileDest)
+                except IOError as e:
+                    print("Unable to copy file. %s" % e)
+                except:
+                    print("Unexpected error:", sys.exc_info())
+                    exit(1)
+                else:
+                    print("File successfully copied %s" % fileName)
             else:
-                print("File successfully copied %s" % fileName)
+                fileSourceT = os.path.getmtime(fileSource)
+                fileDestT   = os.path.getmtime(fileDest)
+                if fileSourceT > fileDestT:
+                    os.remove(fileDest)
+                    shutil.copy2(fileSource,fileDest)
+                    print("File successfully replaced %s" % fileName)
+                elif fileSourceT == fileDestT:
+                    pass
+                    #print("File has same modified time!!!")
+                else:
+                    pass
+                    #print("File in destination Path is newer")
         else:
-            fileSourceT = os.path.getmtime(fileSource)
-            fileDestT   = os.path.getmtime(fileDest)
-            if fileSourceT > fileDestT:
-                os.remove(fileDest)
-                shutil.copy2(fileSource,fileDest)
-                print("File successfully replaced %s" % fileName)
-            elif fileSourceT == fileDestT:
-                pass
-                #print("File has same modified time!!!")
-            else:
-                pass
-                #print("File in destination Path is newer")
+            pass
 
 
 #List all Files and Folders 
@@ -75,8 +80,8 @@ def data_to_backup(sourcePath,destinationPath):
     print("Folder List: ",folderList)
     fList = []
     for i in folderList:
-        #fList.append(i)
-        fList.append([x[0] for x in os.walk("{}".format(sourcePath))])
+        #without git folder
+        fList.append([x[0] for x in os.walk("{}".format(sourcePath)) if not ".git" in x[0]])
     #print("Directories and sub: ",fList)
 
     allFiles = list()
