@@ -10,6 +10,7 @@ A little python tool to backup my projects and compare if its older or newer.
 Set in the config.py
 
 `destinationPath=""`
+
 `sourcePath=""`
 
 Run:
